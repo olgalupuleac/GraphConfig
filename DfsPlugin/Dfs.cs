@@ -37,7 +37,7 @@ namespace DfsPlugin
         private EnvDTE.DebuggerEvents _debugEvents;
         private EnvDTE.Debugger _debugger;
         private System.Windows.Forms.Form _form;
-        //private GraphConfig _config;
+  
         protected override void Initialize()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -47,19 +47,11 @@ namespace DfsPlugin
            _debugEvents.OnContextChanged +=
                 RenderGraph;
            if (_dte.Debugger != null) _debugger = _dte.Debugger;
-           /**
-            * NodeFamily nodes =
-            */
         }
 
         private void RenderGraph(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
         {
             
         }
-
-        //private GraphConfig.GraphConfig _graphConfig;
-        /*
-         *
-         */
     }
 }
