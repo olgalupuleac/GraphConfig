@@ -60,14 +60,15 @@ namespace GraphConfigurationTest
                     currentIndexInList++;
                 }
             }
+
             Assert.AreEqual(currentIndexInList, res.Count);
         }
 
         [TestMethod]
         public void Id()
         {
-            ScalarId a = new ScalarId { Name = "a", Value = 1 };
-            ScalarId b = new ScalarId { Name = "b", Value = 10 };
+            ScalarId a = new ScalarId {Name = "a", Value = 1};
+            ScalarId b = new ScalarId {Name = "b", Value = 10};
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("1#10", identifier.Id());
         }

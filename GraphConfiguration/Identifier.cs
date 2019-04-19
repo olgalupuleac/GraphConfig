@@ -67,7 +67,7 @@ namespace GraphConfiguration
 
         public static List<Identifier> GetAllIdentifiersInRange(List<ScalarIdRange> ranges)
         {
-            List<Identifier> result = new List<Identifier>();
+            var result = new List<Identifier>();
             var currentPermutation = new List<ScalarId>();
             foreach (var identifier in ranges)
             {
@@ -92,10 +92,13 @@ namespace GraphConfiguration
                     if (currentPermutation[indexToIncrease].Value < ranges[indexToIncrease].LastValue - 1)
                     {
                         currentPermutation[indexToIncrease].Value++;
-                        for (var trailingIndex = indexToIncrease + 1; trailingIndex < currentPermutation.Count; trailingIndex++)
+                        for (var trailingIndex = indexToIncrease + 1;
+                            trailingIndex < currentPermutation.Count;
+                            trailingIndex++)
                         {
                             currentPermutation[trailingIndex].Value = ranges[trailingIndex].FirstValue;
                         }
+
                         break;
                     }
                 }
