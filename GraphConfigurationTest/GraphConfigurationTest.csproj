@@ -56,9 +56,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GraphConfiguration\GraphConfiguration.csproj">
-      <Project>{21a2be30-47c0-4399-9def-30dc043e549e}</Project>
-      <Name>GraphConfiguration</Name>
+    <ProjectReference Include="..\GraphConfig\GraphConfig.csproj">
+      <Project>{df481022-199c-4ce6-94df-d3710f716cee}</Project>
+      <Name>GraphConfig</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
