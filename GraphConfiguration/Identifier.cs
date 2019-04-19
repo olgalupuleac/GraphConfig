@@ -7,14 +7,14 @@ namespace GraphConfiguration
     public class ScalarIdRange
     {
         public string Name { get; }
-        public int FirstValue { get; }
-        public int LastValue { get; }
+        public int Begin { get; }
+        public int End { get; }
 
-        public ScalarIdRange(string name, int firstValue, int lastValue)
+        public ScalarIdRange(string name, int begin, int end)
         {
             Name = name;
-            FirstValue = firstValue;
-            LastValue = lastValue;
+            Begin = begin;
+            End = end;
         }
     }
 
@@ -36,6 +36,10 @@ namespace GraphConfiguration
 
     public class Identifier
     {
+        public Identifier()
+        {
+        }
+
         public Identifier(params ScalarId[] identifiers)
         {
             SingleIdentifiers = new List<ScalarId>();
@@ -71,7 +75,7 @@ namespace GraphConfiguration
             var currentPermutation = new List<ScalarId>();
             foreach (var identifier in ranges)
             {
-                currentPermutation.Add(new ScalarId {Name = identifier.Name, Value = identifier.FirstValue});
+                currentPermutation.Add(new ScalarId {Name = identifier.Name, Value = identifier.Begin});
             }
 
             while (true)
@@ -89,14 +93,14 @@ namespace GraphConfiguration
                         return result;
                     }
 
-                    if (currentPermutation[indexToIncrease].Value < ranges[indexToIncrease].LastValue - 1)
+                    if (currentPermutation[indexToIncrease].Value < ranges[indexToIncrease].End - 1)
                     {
                         currentPermutation[indexToIncrease].Value++;
                         for (var trailingIndex = indexToIncrease + 1;
                             trailingIndex < currentPermutation.Count;
                             trailingIndex++)
                         {
-                            currentPermutation[trailingIndex].Value = ranges[trailingIndex].FirstValue;
+                            currentPermutation[trailingIndex].Value = ranges[trailingIndex].Begin;
                         }
 
                         break;
