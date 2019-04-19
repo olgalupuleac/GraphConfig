@@ -1,7 +1,10 @@
-﻿namespace DfsPlugin
+﻿using EnvDTE;
+
+namespace DfsPlugin
 {
     using System;
     using System.Runtime.InteropServices;
+    
     using Microsoft.VisualStudio.Shell;
 
     /// <summary>
@@ -30,7 +33,33 @@
             // the object returned by the Content property.
             this.Content = new DfsControl();
         }
+        private EnvDTE.DTE _dte;
+        private EnvDTE.DebuggerEvents _debugEvents;
+        private EnvDTE.Debugger _debugger;
+        private System.Windows.Forms.Form _form;
+        //private GraphConfig _config;
+        protected override void Initialize()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            _dte = (DTE)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            // Place the following code in the event handler  
+            _debugEvents = _dte.Events.DebuggerEvents;
+           _debugEvents.OnContextChanged +=
+                RenderGraph;
+           if (_dte.Debugger != null) _debugger = _dte.Debugger;
+           /**
+            * NodeFamily nodes =
+            */
+        }
 
+        private void RenderGraph(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
+        {
+            
+        }
 
+        //private GraphConfig.GraphConfig _graphConfig;
+        /*
+         *
+         */
     }
 }

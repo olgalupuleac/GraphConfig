@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Msagl.Drawing;
+﻿using Microsoft.Msagl.Drawing;
 
-namespace GraphConfiguration
+namespace GraphConfig
 {
     public abstract class Property
     {
@@ -16,6 +13,7 @@ namespace GraphConfiguration
 
         //TODO enum
         public bool AllStackFrames { get; set; }
+
     }
 
     public class ValidationProperty : Property

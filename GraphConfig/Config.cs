@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphConfiguration
+namespace GraphConfig
 {
     public abstract class GraphElementFamily
     {
         protected GraphElementFamily(List<ScalarIdRange> ranges)
         {
             Ranges = ranges;
+            Properties = new List<Property>();
         }
 
         public List<ScalarIdRange> Ranges { get; }
@@ -35,12 +36,12 @@ namespace GraphConfiguration
         }
     }
 
-    public class GraphConfig
+    public class Config
     {
         public HashSet<EdgeFamily> Edges { get; set; }
         public HashSet<NodeFamily> Nodes { get; set; }
 
-        public GraphConfig()
+        public Config()
         {
             Edges = new HashSet<EdgeFamily>();
             Nodes = new HashSet<NodeFamily>();

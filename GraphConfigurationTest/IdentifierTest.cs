@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using GraphConfiguration;
+using GraphConfig;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GraphConfigurationTest
