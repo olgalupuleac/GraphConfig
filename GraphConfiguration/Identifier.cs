@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace GraphConfiguration
 {
-    public class SingleIdentifierRange
+    public class ScalarIdRange
     {
         public string Name { get; }
         public int FirstValue { get; }
         public int LastValue { get; }
 
-        public SingleIdentifierRange(string name, int firstValue, int lastValue)
+        public ScalarIdRange(string name, int firstValue, int lastValue)
         {
             Name = name;
             FirstValue = firstValue;
@@ -18,7 +18,7 @@ namespace GraphConfiguration
         }
     }
 
-    public class SingleIdentifier
+    public class ScalarId
     {
         public string Name { get; set; }
         public int Value { get; set; }
@@ -36,18 +36,18 @@ namespace GraphConfiguration
 
     public class Identifier
     {
-        public Identifier(params SingleIdentifier[] identifiers)
+        public Identifier(params ScalarId[] identifiers)
         {
-            SingleIdentifiers = new List<SingleIdentifier>();
+            SingleIdentifiers = new List<ScalarId>();
             SingleIdentifiers.AddRange(identifiers);
         }
 
-        public Identifier(List<SingleIdentifier> identifiers)
+        public Identifier(List<ScalarId> identifiers)
         {
             SingleIdentifiers = identifiers;
         }
 
-        public List<SingleIdentifier> SingleIdentifiers { get; set; }
+        public List<ScalarId> SingleIdentifiers { get; set; }
 
         public string Substitute(string expression, string functionName = "")
         {
@@ -65,41 +65,39 @@ namespace GraphConfiguration
             return String.Join("#", SingleIdentifiers.Select(i => i.Value.ToString()));
         }
 
-        public static List<Identifier> GetAllIdentifiersInRange(List<SingleIdentifierRange> ranges)
+        public static List<Identifier> GetAllIdentifiersInRange(List<ScalarIdRange> ranges)
         {
             List<Identifier> result = new List<Identifier>();
-            var currentPermutation = new List<SingleIdentifier>();
+            var currentPermutation = new List<ScalarId>();
             foreach (var identifier in ranges)
             {
-                currentPermutation.Add(new SingleIdentifier {Name = identifier.Name, Value = identifier.FirstValue});
+                currentPermutation.Add(new ScalarId {Name = identifier.Name, Value = identifier.FirstValue});
             }
 
             while (true)
             {
-                //TODO simplify this deep copy
+                //TODO simplify this deep copy (or change type of current permutation to List<int>)
                 result.Add(new Identifier
                 {
                     SingleIdentifiers = currentPermutation
-                        .Select(x => new SingleIdentifier {Name = x.Name, Value = x.Value}).ToList()
+                        .Select(x => new ScalarId {Name = x.Name, Value = x.Value}).ToList()
                 });
-                //TODO rename i, j
-                for (var i = currentPermutation.Count - 1; i >= -1; i--)
+                for (var indexToIncrease = currentPermutation.Count - 1; indexToIncrease >= -1; indexToIncrease--)
                 {
-                    if (i == -1)
+                    if (indexToIncrease == -1)
                     {
                         return result;
                     }
 
-                    if (currentPermutation[i].Value < ranges[i].LastValue - 1)
+                    if (currentPermutation[indexToIncrease].Value < ranges[indexToIncrease].LastValue - 1)
                     {
-                        currentPermutation[i].Value++;
-                        for (var j = i + 1; j < currentPermutation.Count; j++)
+                        currentPermutation[indexToIncrease].Value++;
+                        for (var trailingIndex = indexToIncrease + 1; trailingIndex < currentPermutation.Count; trailingIndex++)
                         {
-                            currentPermutation[j].Value = ranges[j].FirstValue;
+                            currentPermutation[trailingIndex].Value = ranges[trailingIndex].FirstValue;
                         }
                         break;
                     }
-
                 }
             }
         }
