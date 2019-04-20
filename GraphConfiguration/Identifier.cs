@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GraphConfig
+namespace GraphConfiguration
 {
     public class ScalarIdRange
     {

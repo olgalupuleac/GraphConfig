@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DF481022-199C-4CE6-94DF-D3710F716CEE}</ProjectGuid>
+    <ProjectGuid>{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GraphConfig</RootNamespace>
-    <AssemblyName>GraphConfig</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <RootNamespace>GraphConfiguration</RootNamespace>
+    <AssemblyName>GraphConfiguration</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -35,10 +35,7 @@
       <HintPath>..\..\DebuggerEventListener\packages\Microsoft.Msagl.1.1.3\lib\net40\Microsoft.Msagl.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Msagl.Drawing">
-      <HintPath>..\..\DebuggerEventListener\packages\Microsoft.Msagl.Drawing.1.1.3\lib\net40\Microsoft.Msagl.Drawing.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Msagl.GraphViewerGdi">
-      <HintPath>..\..\DebuggerEventListener\packages\Microsoft.Msagl.GraphViewerGDI.1.1.3\lib\net40\Microsoft.Msagl.GraphViewerGdi.dll</HintPath>
+      <HintPath>..\..\WpfHost\WpfControlLibrary1\bin\Debug\Microsoft.Msagl.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using GraphConfig;
+using GraphConfiguration;
 using Microsoft.Msagl.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

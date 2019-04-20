@@ -1,6 +1,6 @@
 ﻿using Microsoft.Msagl.Drawing;
 
-namespace GraphConfig
+namespace GraphConfiguration
 {
     public abstract class Property
     {

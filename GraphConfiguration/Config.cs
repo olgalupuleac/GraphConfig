@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphConfig
+namespace GraphConfiguration
 {
     public abstract class GraphElementFamily
     {
