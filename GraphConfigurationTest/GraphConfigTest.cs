@@ -12,34 +12,37 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void CreateGraphConfigForDfs()
         {
-            NodeFamily nodes = new NodeFamily(new List<ScalarIdRange>
+            NodeFamily nodes = new NodeFamily(new VectorRangeExpression(
+                new List<ScalarRangeExpression>
+                {
+                    new ScalarRangeExpression("v", "0", "n")
+                }));
+            FillColorNodeProperty dfsNode = new FillColorNodeProperty(Color.Red)
             {
-                new ScalarIdRange("v", 0, 10)
-            });
-            FillColorProperty dfsNode = new FillColorProperty(Color.Red)
-            {
-                Condition = "\"__CURRENT_FUNCTION__\" == \"dfs\" && v == __v__"
+                Condition = "\"__CURRENT_FUNCTION__\" == \"dfs\" && __ARG1__ == __v__"
             };
             nodes.Properties.Add(dfsNode);
-            EdgeFamily edges = new EdgeFamily(new List<ScalarIdRange>()
-            {
-                new ScalarIdRange("i", 0, 10),
-                new ScalarIdRange("j", 0, 10),
-                new ScalarIdRange("x", 0, 10),
-            }, "__i__", "__j__");
+            EdgeFamily edges = new EdgeFamily(
+                new VectorRangeExpression(
+                    new List<ScalarRangeExpression>
+                    {
+                        new ScalarRangeExpression("a", "0", "n"),
+                        new ScalarRangeExpression("b", "0", "n"),
+                        new ScalarRangeExpression("x", "0", "g[__a__].size()")
+                    }), "__a__", "__b__");
 
-            ValidationProperty edgeValidationProperty = new ValidationProperty()
+            ValidationEdgeProperty edgeValidationEdgeProperty = new ValidationEdgeProperty()
             {
-                Condition = "g[__i__][__x__] == __j__"
+                Condition = "__a__ < __b__ && g[__a__][__x__] == __b__"
             };
 
-            FillColorProperty dfsEdges = new FillColorProperty(Color.Red)
+            LineColorEdgeProperty dfsEdges = new LineColorEdgeProperty(Color.Red)
             {
-                Condition = "p[__i__] == __j__ || p[__j__] == __i__"
+                Condition = "p[__a__] == __b__ || p[__b__] == __a__"
             };
-            edges.Properties.Add(edgeValidationProperty);
+            edges.Properties.Add(edgeValidationEdgeProperty);
             edges.Properties.Add(dfsEdges);
-            Config config = new Config
+            GraphConfig config = new GraphConfig
             {
                 Edges = new HashSet<EdgeFamily> {edges}, Nodes = new HashSet<NodeFamily> {nodes}
             };

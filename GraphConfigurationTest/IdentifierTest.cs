@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GraphConfiguration;
+using GraphConfiguration.GraphElementIdentifier;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GraphConfigurationTest
@@ -10,41 +11,30 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void Substitute()
         {
-            ScalarId a = new ScalarId {Name = "a", Value = 1};
-            ScalarId b = new ScalarId {Name = "b", Value = 10};
+            ScalarId a = new ScalarId("a", 1);
+            ScalarId b = new ScalarId("b",10);
 
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("g[10].size() == 1", identifier.Substitute("g[__b__].size() == __a__"));
         }
 
         [TestMethod]
-        public void SubstituteWithFunctionName()
-        {
-            ScalarId a = new ScalarId {Name = "a", Value = 1};
-            ScalarId b = new ScalarId {Name = "b", Value = 10};
-
-            Identifier identifier = new Identifier(a, b);
-            Assert.AreEqual("\"main\" == \"dfs\" && p[1] == 10",
-                identifier.Substitute("\"__CURRENT_FUNCTION__\" == \"dfs\" && p[__a__] == __b__", "main"));
-        }
-
-        [TestMethod]
         public void AllIdentifiersOneD()
         {
             var res = Identifier.GetAllIdentifiersInRange(
-                new List<ScalarIdRange>() {new ScalarIdRange("a", 0, 3)});
+                new List<ScalarRange>() {new ScalarRange("a", 0, 3)});
             for (int i = 0; i < 3; i++)
             {
-                Assert.AreEqual(i.ToString(), res[i].Id());
+                Assert.AreEqual("a$" + i, res[i].Id());
             }
         }
 
         [TestMethod]
         public void AllIdentifiersTwoD()
         {
-            var list = new List<ScalarIdRange>
+            var list = new List<ScalarRange>
             {
-                new ScalarIdRange("a", 0, 3), new ScalarIdRange("b", 2, 10)
+                new ScalarRange("a", 0, 3), new ScalarRange("b", 2, 10)
             };
             var res = Identifier.GetAllIdentifiersInRange(list);
             int currentIndexInList = 0;
@@ -67,10 +57,10 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void Id()
         {
-            ScalarId a = new ScalarId {Name = "a", Value = 1};
-            ScalarId b = new ScalarId {Name = "b", Value = 10};
+            ScalarId a = new ScalarId ( "a",  1);
+            ScalarId b = new ScalarId ("b", 10);
             Identifier identifier = new Identifier(a, b);
-            Assert.AreEqual("1#10", identifier.Id());
+            Assert.AreEqual("a$1#b$10", identifier.Id());
         }
     }
 }

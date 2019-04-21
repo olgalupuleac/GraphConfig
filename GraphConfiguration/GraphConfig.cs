@@ -4,44 +4,45 @@ namespace GraphConfiguration
 {
     public abstract class GraphElementFamily
     {
-        protected GraphElementFamily(List<ScalarIdRange> ranges)
+        protected GraphElementFamily(VectorRangeExpression ranges)
         {
             Ranges = ranges;
-            Properties = new List<Property>();
         }
 
-        public List<ScalarIdRange> Ranges { get; }
-
-        public List<Property> Properties { get; set; }
+        public VectorRangeExpression Ranges { get; }
     }
 
     public class EdgeFamily : GraphElementFamily
     {
-        public EdgeFamily(List<ScalarIdRange> ranges, string sourceExpression, string targetExpression) :
+        public EdgeFamily(VectorRangeExpression ranges, string sourceExpression, string targetExpression) :
             base(ranges)
         {
             SourceExpression = sourceExpression;
             TargetExpression = targetExpression;
+            Properties = new List<EdgeProperty>();
         }
 
         public bool IsDirected { get; set; }
         public string SourceExpression { get; }
         public string TargetExpression { get; }
+        public List<EdgeProperty> Properties { get; set; }
     }
 
     public class NodeFamily : GraphElementFamily
     {
-        public NodeFamily(List<ScalarIdRange> ranges) : base(ranges)
+        public NodeFamily(VectorRangeExpression ranges) : base(ranges)
         {
+            Properties = new List<NodeProperty>();
         }
+        public List<NodeProperty> Properties { get; set; }
     }
 
-    public class Config
+    public class GraphConfig
     {
         public HashSet<EdgeFamily> Edges { get; set; }
         public HashSet<NodeFamily> Nodes { get; set; }
 
-        public Config()
+        public GraphConfig()
         {
             Edges = new HashSet<EdgeFamily>();
             Nodes = new HashSet<NodeFamily>();
