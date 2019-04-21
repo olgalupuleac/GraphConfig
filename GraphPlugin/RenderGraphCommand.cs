@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using EnvDTE;
-using GraphConfiguration;
 using GraphConfiguration.Config;
-using GraphConfiguration.GraphElementIdentifier;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.GraphViewerGdi;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using GraphRenderer = GraphConfiguration.GraphRenderer.GraphRenderer;
 using Task = System.Threading.Tasks.Task;
 
@@ -99,7 +93,7 @@ namespace GraphPlugin
             var applicationObject = (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             _debugger = applicationObject.Debugger;
             CreateConfig();
-            GraphRenderer renderer = new GraphRenderer(_config, 
+            GraphRenderer renderer = new GraphRenderer(_config,
                 _debugger);
             Graph graph = renderer.RenderGraph();
             GViewer viewer = new GViewer {Graph = graph, Dock = DockStyle.Fill};
@@ -124,17 +118,15 @@ namespace GraphPlugin
                     new IdentifierPartTemplate("a", "0", "n"),
                     new IdentifierPartTemplate("b", "0", "n"),
                     new IdentifierPartTemplate("x", "0", "n")
-                }, "v __a__", "v __b__"
-            );
-            edges.Properties.Add(Tuple.Create(new Condition("g[__a__][__x__] == __b__"),
-                (IEdgeProperty) new ValidationEdgeProperty()));
+                }, new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__a__"),
+                new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__b__")
+            ) {ValidationTemplate = "g[__a__][__x__] == __b__"};
+
             _config = new GraphConfig
             {
                 Edges = new HashSet<EdgeFamily> {edges},
                 Nodes = new HashSet<NodeFamily> {nodes}
             };
         }
-
-        
     }
 }

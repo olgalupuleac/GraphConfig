@@ -12,21 +12,34 @@ namespace GraphConfiguration.Config
         }
 
         public ReadOnlyCollection<IdentifierPartTemplate> Ranges { get; }
+        public string ValidationTemplate { get; set; }
     }
 
     public class EdgeFamily : GraphElementFamily
     {
-        public EdgeFamily(List<IdentifierPartTemplate> ranges, string sourceExpression, string targetExpression) :
+        public class EdgeEnd
+        {
+            public EdgeEnd(string valueTemplate, string name)
+            {
+                ValueTemplate = valueTemplate;
+                Name = name;
+            }
+
+            public string Name { get; }
+            public string ValueTemplate { get; }
+        }
+
+        public EdgeFamily(List<IdentifierPartTemplate> ranges, EdgeEnd source, EdgeEnd target) :
             base(ranges)
         {
-            SourceExpression = sourceExpression;
-            TargetExpression = targetExpression;
+            Source = source;
+            Target = target;
             Properties = new List<Tuple<Condition, IEdgeProperty>>();
         }
 
         public bool IsDirected { get; set; }
-        public string SourceExpression { get; }
-        public string TargetExpression { get; }
+        public EdgeEnd Source { get; }
+        public EdgeEnd Target { get; }
         public List<Tuple<Condition, IEdgeProperty>> Properties { get; set; }
     }
 

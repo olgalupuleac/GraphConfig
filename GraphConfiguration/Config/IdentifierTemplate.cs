@@ -3,14 +3,14 @@
     public class IdentifierPartTemplate
     {
         public string Name { get; }
-        public string BeginExpression { get; }
-        public string EndExpression { get; }
+        public string BeginTemplate { get; }
+        public string EndTemplate { get; }
 
-        public IdentifierPartTemplate(string name, string beginExpression, string endExpression)
+        public IdentifierPartTemplate(string name, string beginTemplate, string endTemplate)
         {
             Name = name;
-            BeginExpression = beginExpression;
-            EndExpression = endExpression;
+            BeginTemplate = beginTemplate;
+            EndTemplate = endTemplate;
         }
     }
 }

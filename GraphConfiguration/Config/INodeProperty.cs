@@ -27,12 +27,6 @@ namespace GraphConfiguration.Config
         public Shape Shape { get; }
     }
 
-    public class ValidationNodeProperty : INodeProperty
-    {
-        //TODO on mouse up, etc.
-    }
-
-
     public class LabelNodeProperty : INodeProperty
     {
         public LabelNodeProperty(string label, string labelTextExpression)

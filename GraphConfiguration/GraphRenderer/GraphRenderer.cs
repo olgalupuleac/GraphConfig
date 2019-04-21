@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using EnvDTE;
 using GraphConfiguration.Config;
 using GraphConfiguration.GraphElementIdentifier;
 using Microsoft.Msagl.Drawing;
@@ -30,55 +31,22 @@ namespace GraphConfiguration.GraphRenderer
 
             foreach (var nodeFamily in _config.Nodes)
             {
-                var nodeIdentifiers = GetIdentifiers(nodeFamily);
-                foreach (var conditionAndProperty in nodeFamily.Properties)
+                var nodeIdentifiers =
+                    GetIdentifiersForCondition(GetIdentifiers(nodeFamily), nodeFamily.ValidationTemplate);
+
+                foreach (var identifier in nodeIdentifiers)
                 {
-                    var conditionTemplate = conditionAndProperty.Item1;
-                    var property = conditionAndProperty.Item2;
-                    foreach (var identifier in nodeIdentifiers)
-                    {
-                        var condition =
-                            SubstituteStackFrameParameters(
-                                identifier.Substitute(conditionTemplate.ConditionExpression));
-                        var conditionExpression = _debugger.GetExpression(condition);
-                        if (conditionExpression.IsValidValue &&
-                            conditionExpression.Value.Equals("true"))
-                        {
-                            ApplyNodePropertyToGraph(
-                                property, identifier.Id());
-                        }
-                    }
+                    _graph.AddNode(identifier.Id());
                 }
             }
 
-            return _graph;
             foreach (var edgeFamily in _config.Edges)
             {
-                var nodeIdentifiers = GetIdentifiers(edgeFamily);
-                if (nodeIdentifiers == null)
+                var edgeIdentifiers =
+                    GetIdentifiersForCondition(GetIdentifiers(edgeFamily), edgeFamily.ValidationTemplate);
+                foreach (var id in edgeIdentifiers)
                 {
-                    return null;
-                }
-
-                foreach (var conditionAndProperty in edgeFamily.Properties)
-                {
-                    var conditionTemplate = conditionAndProperty.Item1;
-                    var property = conditionAndProperty.Item2;
-                    foreach (var identifier in nodeIdentifiers)
-                    {
-                        var condition =
-                            SubstituteStackFrameParameters(
-                                identifier.Substitute(conditionTemplate.ConditionExpression));
-                        var conditionExpression = _debugger.GetExpression(condition);
-                        if (conditionExpression.IsValidValue &&
-                            conditionExpression.Value.Equals("true"))
-                        {
-                            var source = identifier.Substitute(edgeFamily.SourceExpression);
-                            var target = identifier.Substitute(edgeFamily.TargetExpression);
-                            ApplyEdgePropertyToGraph(
-                                property, source: source, target: target, id: identifier.Id());
-                        }
-                    }
+                    AddEdge(edgeFamily, id);
                 }
             }
 
@@ -91,8 +59,8 @@ namespace GraphConfiguration.GraphRenderer
             var ranges = new List<IdentifierPartRange>();
             foreach (var partTemplate in family.Ranges)
             {
-                var beginString = _debugger.GetExpression(partTemplate.BeginExpression).Value;
-                var endString = _debugger.GetExpression(partTemplate.EndExpression).Value;
+                var beginString = _debugger.GetExpression(partTemplate.BeginTemplate).Value;
+                var endString = _debugger.GetExpression(partTemplate.EndTemplate).Value;
                 Debug.WriteLine(beginString);
                 Debug.WriteLine(endString);
                 if (Int32.TryParse(beginString, out var begin) &&
@@ -109,7 +77,26 @@ namespace GraphConfiguration.GraphRenderer
             return Identifier.GetAllIdentifiersInRange(ranges);
         }
 
-        private string SubstituteStackFrameParameters(string expression)
+        private List<Identifier> GetIdentifiersForCondition(List<Identifier> identifiers, string conditionTemplate)
+        {
+            if (conditionTemplate == null)
+            {
+                return identifiers;
+            }
+
+            var validIdentifiers = new List<Identifier>();
+            foreach (var identifier in identifiers)
+            {
+                if (CheckConditionForIdentifier(conditionTemplate, identifier))
+                {
+                    validIdentifiers.Add(identifier);
+                }
+            }
+
+            return validIdentifiers;
+        }
+
+        private string SubstituteStackFrameParameters(string expression, Identifier identifier)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var stackFrame = _debugger.CurrentStackFrame;
@@ -119,40 +106,48 @@ namespace GraphConfiguration.GraphRenderer
                 result = result.Replace($"__ARG{i}__", stackFrame.Arguments.Item(i).Value);
             }
 
-            return result;
-        }
-
-        private void ApplyNodePropertyToGraph(INodeProperty property,
-            string id)
-        {
-            if (property is ValidationNodeProperty)
-            {
-                _graph.AddNode(id);
-                return;
-            }
-
-            //TODO other properies
+            return identifier.Substitute(result);
         }
 
 
-        private void ApplyEdgePropertyToGraph(IEdgeProperty property,
-            string target, string source, string id)
+        private Expression GetExpression(string template, Identifier identifier)
         {
-            if (property is ValidationEdgeProperty)
-            {
-                var sourceNode = _graph.FindNode(source);
-                var targetNode = _graph.FindNode(target);
-                if (targetNode == null || sourceNode == null)
-                {
-                    //TODO more specific exception
-                    throw new SystemException("Target or source nodes do not exist");
-                }
+            ThreadHelper.ThrowIfNotOnUIThread();
+            string expression = SubstituteStackFrameParameters(template,
+                identifier);
+            return _debugger.GetExpression(expression);
+        }
 
-                var edge = _graph.AddEdge(source, target);
-                _edges[id] = edge;
+
+        bool CheckConditionForIdentifier(string conditionTemplate, Identifier identifier)
+        {
+            var conditionResult = GetExpression(conditionTemplate, identifier);
+            return conditionResult.IsValidValue && conditionResult.Value.Equals("true");
+        }
+
+
+        private void AddEdge(EdgeFamily edgeFamily,
+            Identifier identifier)
+        {
+            //TODO check IsValidValue
+            var sourceValue = GetExpression(edgeFamily.Source.ValueTemplate, identifier).Value;
+            var targetValue = GetExpression(edgeFamily.Target.ValueTemplate, identifier).Value;
+            var source = edgeFamily.Source.Name + " " + sourceValue;
+            var target = edgeFamily.Target.Name + " " + targetValue;
+            var sourceNode = _graph.FindNode(source);
+            var targetNode = _graph.FindNode(target);
+            if (targetNode == null || sourceNode == null)
+            {
+                //TODO more specific exception
+                throw new SystemException("Target or source nodes do not exist");
             }
 
-            //TODO other properies
+            var edge = _graph.AddEdge(source, target);
+            _edges[identifier.Id()] = edge;
+            if (!edgeFamily.IsDirected)
+            {
+                edge.Attr.ArrowheadAtTarget = ArrowStyle.None;
+            }
         }
     }
 }

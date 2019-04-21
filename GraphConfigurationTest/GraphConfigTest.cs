@@ -27,22 +27,20 @@ namespace GraphConfigurationTest
 
             nodes.Properties.Add(dfsNode);
             EdgeFamily edges = new EdgeFamily(
-                new List<IdentifierPartTemplate>
-                {
-                    new IdentifierPartTemplate("a", "0", "n"),
-                    new IdentifierPartTemplate("b", "0", "n"),
-                    new IdentifierPartTemplate("x", "0", "g[__a__].size()")
-                }, "__a__", "__b__");
+                    new List<IdentifierPartTemplate>
+                    {
+                        new IdentifierPartTemplate("a", "0", "n"),
+                        new IdentifierPartTemplate("b", "0", "n"),
+                        new IdentifierPartTemplate("x", "0", "g[__a__].size()")
+                    }, new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__a__"),
+                    new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__b__"))
+                {ValidationTemplate = "__a__ < __b__ && g[__a__][__x__] == __b__"};
 
-
-            var edgeValidationEdgeProperty = Tuple.Create(
-                new Condition("__a__ < __b__ && g[__a__][__x__] == __b__"),
-                (IEdgeProperty) new ValidationEdgeProperty());
 
             var dfsEdges = Tuple.Create(new Condition("p[__a__] == __b__ || p[__b__] == __a__"),
                 (IEdgeProperty) new LineColorEdgeProperty(Color.Red));
 
-            edges.Properties.Add(edgeValidationEdgeProperty);
+
             edges.Properties.Add(dfsEdges);
             GraphConfig config = new GraphConfig
             {

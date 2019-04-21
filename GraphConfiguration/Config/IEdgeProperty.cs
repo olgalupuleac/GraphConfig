@@ -7,12 +7,6 @@ namespace GraphConfiguration.Config
     {
     }
 
-    public class ValidationEdgeProperty : IEdgeProperty
-    {
-        //TODO on mouse up, etc.
-    }
-
-
     public class LabelEdgeProperty : IEdgeProperty
     {
         public LabelEdgeProperty(string label, string labelTextExpression)
