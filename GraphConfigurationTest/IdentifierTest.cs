@@ -12,7 +12,7 @@ namespace GraphConfigurationTest
         public void Substitute()
         {
             ScalarId a = new ScalarId("a", 1);
-            ScalarId b = new ScalarId("b",10);
+            ScalarId b = new ScalarId("b", 10);
 
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("g[10].size() == 1", identifier.Substitute("g[__b__].size() == __a__"));
@@ -42,11 +42,11 @@ namespace GraphConfigurationTest
             {
                 for (int bIndex = 2; bIndex < 10; bIndex++)
                 {
-                    Assert.AreEqual(2, res[currentIndexInList].SingleIdentifiers.Count);
-                    Assert.AreEqual("a", res[currentIndexInList].SingleIdentifiers[0].Name);
-                    Assert.AreEqual(aIndex, res[currentIndexInList].SingleIdentifiers[0].Value);
-                    Assert.AreEqual("b", res[currentIndexInList].SingleIdentifiers[1].Name);
-                    Assert.AreEqual(bIndex, res[currentIndexInList].SingleIdentifiers[1].Value);
+                    Assert.AreEqual(2, res[currentIndexInList].ScalarIds.Count);
+                    Assert.AreEqual("a", res[currentIndexInList].ScalarIds[0].Name);
+                    Assert.AreEqual(aIndex, res[currentIndexInList].ScalarIds[0].Value);
+                    Assert.AreEqual("b", res[currentIndexInList].ScalarIds[1].Name);
+                    Assert.AreEqual(bIndex, res[currentIndexInList].ScalarIds[1].Value);
                     currentIndexInList++;
                 }
             }
@@ -57,8 +57,8 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void Id()
         {
-            ScalarId a = new ScalarId ( "a",  1);
-            ScalarId b = new ScalarId ("b", 10);
+            ScalarId a = new ScalarId("a", 1);
+            ScalarId b = new ScalarId("b", 10);
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("a$1#b$10", identifier.Id());
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace GraphConfiguration.GraphElementIdentifier
@@ -44,21 +45,22 @@ namespace GraphConfiguration.GraphElementIdentifier
     {
         public Identifier(params ScalarId[] identifiers)
         {
-            SingleIdentifiers = new List<ScalarId>();
-            SingleIdentifiers.AddRange(identifiers);
+            var identifiersList = new List<ScalarId>();
+            identifiersList.AddRange(identifiers);
+            ScalarIds = identifiersList.AsReadOnly();
         }
 
         public Identifier(List<ScalarId> identifiers)
         {
-            SingleIdentifiers = identifiers;
+            ScalarIds = identifiers.AsReadOnly();
         }
 
-        public List<ScalarId> SingleIdentifiers { get; set; }
+        public ReadOnlyCollection<ScalarId> ScalarIds { get; }
 
         public string Substitute(string expression)
         {
             var stringToSubstitute = String.Copy(expression);
-            foreach (var identifier in SingleIdentifiers)
+            foreach (var identifier in ScalarIds)
             {
                 stringToSubstitute = identifier.SubstituteValue(stringToSubstitute);
             }
@@ -68,7 +70,7 @@ namespace GraphConfiguration.GraphElementIdentifier
 
         public string Id()
         {
-            return String.Join("#", SingleIdentifiers.Select(i => i.Name + "$" + i.Value.ToString()));
+            return String.Join("#", ScalarIds.Select(i => i.Name + "$" + i.Value.ToString()));
         }
 
         public static List<Identifier> GetAllIdentifiersInRange(List<ScalarRange> ranges)
@@ -84,11 +86,9 @@ namespace GraphConfiguration.GraphElementIdentifier
             while (true)
             {
                 //TODO simplify this deep copy (or change type of current permutation to List<int>)
-                result.Add(new Identifier
-                {
-                    SingleIdentifiers = currentPermutation
-                        .Select(x => new ScalarId(x.Name, x.Value)).ToList()
-                });
+                result.Add(new Identifier(currentPermutation
+                    .Select(x => new ScalarId(x.Name, x.Value)).ToList()
+                ));
                 for (var indexToIncrease = currentPermutation.Count - 1; indexToIncrease >= -1; indexToIncrease--)
                 {
                     if (indexToIncrease == -1)
