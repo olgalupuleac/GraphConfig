@@ -126,14 +126,26 @@ namespace GraphConfiguration.GraphRenderer
         }
 
 
+        private Identifier NodeIdentifier(EdgeFamily.EdgeEnd edgeEnd, Identifier identifier)
+        {
+            var templates = edgeEnd.GeTemplates();
+            var res = new List<IdentifierPart>();
+            foreach (var template in templates)
+            {
+                //TODO safe
+                var value = Int32.Parse(GetExpression(template.Item2, identifier).Value);
+                res.Add(new IdentifierPart(template.Item1, value));
+            }
+            return new Identifier(res);
+        }
+
+
         private void AddEdge(EdgeFamily edgeFamily,
             Identifier identifier)
         {
             //TODO check IsValidValue
-            var sourceValue = GetExpression(edgeFamily.Source.ValueTemplate, identifier).Value;
-            var targetValue = GetExpression(edgeFamily.Target.ValueTemplate, identifier).Value;
-            var source = edgeFamily.Source.Name + " " + sourceValue;
-            var target = edgeFamily.Target.Name + " " + targetValue;
+            var source  = NodeIdentifier(edgeFamily.Source, identifier).Id();
+            var target = NodeIdentifier(edgeFamily.Target, identifier).Id();
             var sourceNode = _graph.FindNode(source);
             var targetNode = _graph.FindNode(target);
             if (targetNode == null || sourceNode == null)

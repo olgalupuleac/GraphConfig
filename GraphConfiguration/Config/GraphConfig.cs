@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using GraphConfiguration.GraphElementIdentifier;
 
 namespace GraphConfiguration.Config
 {
@@ -19,14 +21,27 @@ namespace GraphConfiguration.Config
     {
         public class EdgeEnd
         {
-            public EdgeEnd(string valueTemplate, string name)
+            public EdgeEnd(NodeFamily node, List<string> templates)
             {
-                ValueTemplate = valueTemplate;
-                Name = name;
+                _node = node;
+                _templates = templates.AsReadOnly();
             }
 
-            public string Name { get; }
-            public string ValueTemplate { get; }
+            private readonly NodeFamily _node;
+            private readonly ReadOnlyCollection<string> _templates;
+
+            public List<Tuple<string, string>> GeTemplates()
+            {
+               // TODO throw exception
+               Debug.Assert(_templates.Count == _node.Ranges.Count);
+               var result = new List<Tuple<string, string>>();
+               for (int i = 0; i < _templates.Count; i++)
+               {
+                   result.Add(Tuple.Create(_node.Ranges[i].Name, _templates[i]));
+               }
+
+               return result;
+            }
         }
 
         public EdgeFamily(List<IdentifierPartTemplate> ranges, EdgeEnd source, EdgeEnd target) :

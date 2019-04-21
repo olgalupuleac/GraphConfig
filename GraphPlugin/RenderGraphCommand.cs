@@ -118,9 +118,9 @@ namespace GraphPlugin
                     new IdentifierPartTemplate("a", "0", "n"),
                     new IdentifierPartTemplate("b", "0", "n"),
                     new IdentifierPartTemplate("x", "0", "n")
-                }, new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__a__"),
-                new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__b__")
-            ) {ValidationTemplate = "g[__a__][__x__] == __b__"};
+                }, new EdgeFamily.EdgeEnd(nodes, new List<string>{"__a__"}),
+                new EdgeFamily.EdgeEnd(nodes, new List<string> { "__b__" })
+            ) {ValidationTemplate = "g[__a__][__x__] == __b__", IsDirected = true};
 
             _config = new GraphConfig
             {

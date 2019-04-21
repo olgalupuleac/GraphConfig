@@ -32,8 +32,8 @@ namespace GraphConfigurationTest
                         new IdentifierPartTemplate("a", "0", "n"),
                         new IdentifierPartTemplate("b", "0", "n"),
                         new IdentifierPartTemplate("x", "0", "g[__a__].size()")
-                    }, new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__a__"),
-                    new EdgeFamily.EdgeEnd(name: "v", valueTemplate: "__b__"))
+                    }, new EdgeFamily.EdgeEnd(nodes, new List<string>{"__a__"}),
+                    new EdgeFamily.EdgeEnd(nodes, new List<string>{ "__b__"}))
                 {ValidationTemplate = "__a__ < __b__ && g[__a__][__x__] == __b__"};
 
 
