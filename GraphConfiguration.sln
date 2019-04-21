@@ -3,12 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphConfiguration", "GraphConfiguration\GraphConfiguration.csproj", "{21A2BE30-47C0-4399-9DEF-30DC043E549E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphConfigurationTest", "GraphConfigurationTest\GraphConfigurationTest.csproj", "{E25B0D96-41C1-428D-AA95-38BCFAAE929D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{14E2EBCF-503E-4776-8349-183A61B9BCA7}"
-	ProjectSection(SolutionItems) = preProject
-		.travis.yml = .travis.yml
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphConfiguration", "GraphConfiguration\GraphConfiguration.csproj", "{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphPlugin", "GraphPlugin\GraphPlugin.csproj", "{F4A8DC39-5FB3-4BC5-B303-FB2549847511}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{21A2BE30-47C0-4399-9DEF-30DC043E549E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{21A2BE30-47C0-4399-9DEF-30DC043E549E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{21A2BE30-47C0-4399-9DEF-30DC043E549E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{21A2BE30-47C0-4399-9DEF-30DC043E549E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E25B0D96-41C1-428D-AA95-38BCFAAE929D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E25B0D96-41C1-428D-AA95-38BCFAAE929D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E25B0D96-41C1-428D-AA95-38BCFAAE929D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E25B0D96-41C1-428D-AA95-38BCFAAE929D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
