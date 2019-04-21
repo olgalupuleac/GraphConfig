@@ -25,7 +25,7 @@ namespace GraphConfigurationTest
                 new List<IdentifierPartRange>() {new IdentifierPartRange("a", 0, 3)});
             for (int i = 0; i < 3; i++)
             {
-                Assert.AreEqual("a$" + i, res[i].Id());
+                Assert.AreEqual("a " + i, res[i].Id());
             }
         }
 
@@ -42,11 +42,11 @@ namespace GraphConfigurationTest
             {
                 for (int bIndex = 2; bIndex < 10; bIndex++)
                 {
-                    Assert.AreEqual(2, res[currentIndexInList].ScalarIds.Count);
-                    Assert.AreEqual("a", res[currentIndexInList].ScalarIds[0].Name);
-                    Assert.AreEqual(aIndex, res[currentIndexInList].ScalarIds[0].Value);
-                    Assert.AreEqual("b", res[currentIndexInList].ScalarIds[1].Name);
-                    Assert.AreEqual(bIndex, res[currentIndexInList].ScalarIds[1].Value);
+                    Assert.AreEqual(2, res[currentIndexInList].IdentifierParts.Count);
+                    Assert.AreEqual("a", res[currentIndexInList].IdentifierParts[0].Name);
+                    Assert.AreEqual(aIndex, res[currentIndexInList].IdentifierParts[0].Value);
+                    Assert.AreEqual("b", res[currentIndexInList].IdentifierParts[1].Name);
+                    Assert.AreEqual(bIndex, res[currentIndexInList].IdentifierParts[1].Value);
                     currentIndexInList++;
                 }
             }
@@ -60,7 +60,7 @@ namespace GraphConfigurationTest
             IdentifierPart a = new IdentifierPart("a", 1);
             IdentifierPart b = new IdentifierPart("b", 10);
             Identifier identifier = new Identifier(a, b);
-            Assert.AreEqual("a$1#b$10", identifier.Id());
+            Assert.AreEqual("a 1#b 10", identifier.Id());
         }
     }
 }

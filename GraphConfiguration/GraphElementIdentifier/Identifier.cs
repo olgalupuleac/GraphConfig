@@ -43,24 +43,24 @@ namespace GraphConfiguration.GraphElementIdentifier
 
     public class Identifier
     {
-        public Identifier(params IdentifierPart[] identifiers)
+        public Identifier(params IdentifierPart[] parts)
         {
             var identifiersList = new List<IdentifierPart>();
-            identifiersList.AddRange(identifiers);
-            ScalarIds = identifiersList.AsReadOnly();
+            identifiersList.AddRange(parts);
+            IdentifierParts = identifiersList.AsReadOnly();
         }
 
-        public Identifier(List<IdentifierPart> identifiers)
+        public Identifier(List<IdentifierPart> parts)
         {
-            ScalarIds = identifiers.AsReadOnly();
+            IdentifierParts = parts.AsReadOnly();
         }
 
-        public ReadOnlyCollection<IdentifierPart> ScalarIds { get; }
+        public ReadOnlyCollection<IdentifierPart> IdentifierParts { get; }
 
         public string Substitute(string expression)
         {
             var stringToSubstitute = String.Copy(expression);
-            foreach (var identifier in ScalarIds)
+            foreach (var identifier in IdentifierParts)
             {
                 stringToSubstitute = identifier.SubstituteValue(stringToSubstitute);
             }
@@ -70,7 +70,7 @@ namespace GraphConfiguration.GraphElementIdentifier
 
         public string Id()
         {
-            return String.Join("#", ScalarIds.Select(i => i.Name + "$" + i.Value.ToString()));
+            return String.Join("#", IdentifierParts.Select(i => i.Name + " " + i.Value.ToString()));
         }
 
         public static List<Identifier> GetAllIdentifiersInRange(List<IdentifierPartRange> ranges)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GraphConfiguration;
+using GraphConfiguration.Config;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.GraphmapsWithMesh;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

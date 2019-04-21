@@ -4,10 +4,16 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using EnvDTE;
 using GraphConfiguration;
+using GraphConfiguration.Config;
+using GraphConfiguration.GraphElementIdentifier;
+using Microsoft.Msagl.Drawing;
+using Microsoft.Msagl.GraphViewerGdi;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using GraphRenderer = GraphConfiguration.GraphRenderer.GraphRenderer;
 using Task = System.Threading.Tasks.Task;
 
 namespace GraphPlugin
@@ -78,6 +84,7 @@ namespace GraphPlugin
 
         private GraphConfig _config;
         private Debugger _debugger;
+        private Dictionary<string, Edge> _edges = new Dictionary<string, Edge>();
 
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -92,7 +99,15 @@ namespace GraphPlugin
             var applicationObject = (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             _debugger = applicationObject.Debugger;
             CreateConfig();
-            RenderGraph();
+            GraphRenderer renderer = new GraphRenderer(_config, 
+                _debugger);
+            Graph graph = renderer.RenderGraph();
+            GViewer viewer = new GViewer {Graph = graph, Dock = DockStyle.Fill};
+            Form form = new Form();
+            form.SuspendLayout();
+            form.Controls.Add(viewer);
+            form.ResumeLayout();
+            form.Show();
         }
 
         private void CreateConfig()
@@ -108,8 +123,8 @@ namespace GraphPlugin
                 {
                     new IdentifierPartTemplate("a", "0", "n"),
                     new IdentifierPartTemplate("b", "0", "n"),
-                    new IdentifierPartTemplate("x", "0", "g[__a__].size()")
-                }, "__a__", "__b__"
+                    new IdentifierPartTemplate("x", "0", "n")
+                }, "v __a__", "v __b__"
             );
             edges.Properties.Add(Tuple.Create(new Condition("g[__a__][__x__] == __b__"),
                 (IEdgeProperty) new ValidationEdgeProperty()));
@@ -120,15 +135,6 @@ namespace GraphPlugin
             };
         }
 
-        private void RenderGraph()
-        {
-            foreach (var edgeFamily in _config.Edges)
-            {
-                foreach (var partTemplate in edgeFamily.Ranges)
-                {
-
-                }
-            }
-        }
+        
     }
 }

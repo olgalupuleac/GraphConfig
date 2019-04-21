@@ -1,7 +1,7 @@
 ﻿using GraphConfiguration.GraphElementIdentifier;
 using Microsoft.Msagl.Drawing;
 
-namespace GraphConfiguration
+namespace GraphConfiguration.Config
 {
     public interface IEdgeProperty
     {

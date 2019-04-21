@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace GraphConfiguration
+namespace GraphConfiguration.Config
 {
     public abstract class GraphElementFamily
     {

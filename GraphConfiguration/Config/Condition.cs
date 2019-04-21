@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GraphConfiguration.GraphElementIdentifier;
-
-namespace GraphConfiguration
+﻿namespace GraphConfiguration.Config
 {
     public class Condition
     {
