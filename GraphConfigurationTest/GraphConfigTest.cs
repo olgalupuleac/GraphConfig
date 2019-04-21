@@ -12,10 +12,10 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void CreateGraphConfigForDfs()
         {
-            NodeFamily nodes = new NodeFamily(new VectorRangeExpression(
-                new List<ScalarRangeExpression>
+            NodeFamily nodes = new NodeFamily(new IdentifierTemplate(
+                new List<IdentifierPartTemplate>
                 {
-                    new ScalarRangeExpression("v", "0", "n")
+                    new IdentifierPartTemplate("v", "0", "n")
                 }));
             FillColorNodeProperty dfsNode = new FillColorNodeProperty(Color.Red)
             {
@@ -23,12 +23,12 @@ namespace GraphConfigurationTest
             };
             nodes.Properties.Add(dfsNode);
             EdgeFamily edges = new EdgeFamily(
-                new VectorRangeExpression(
-                    new List<ScalarRangeExpression>
+                new IdentifierTemplate(
+                    new List<IdentifierPartTemplate>
                     {
-                        new ScalarRangeExpression("a", "0", "n"),
-                        new ScalarRangeExpression("b", "0", "n"),
-                        new ScalarRangeExpression("x", "0", "g[__a__].size()")
+                        new IdentifierPartTemplate("a", "0", "n"),
+                        new IdentifierPartTemplate("b", "0", "n"),
+                        new IdentifierPartTemplate("x", "0", "g[__a__].size()")
                     }), "__a__", "__b__");
 
             ValidationEdgeProperty edgeValidationEdgeProperty = new ValidationEdgeProperty()

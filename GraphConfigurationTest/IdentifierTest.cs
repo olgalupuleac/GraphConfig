@@ -11,8 +11,8 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void Substitute()
         {
-            ScalarId a = new ScalarId("a", 1);
-            ScalarId b = new ScalarId("b", 10);
+            IdentifierPart a = new IdentifierPart("a", 1);
+            IdentifierPart b = new IdentifierPart("b", 10);
 
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("g[10].size() == 1", identifier.Substitute("g[__b__].size() == __a__"));
@@ -22,7 +22,7 @@ namespace GraphConfigurationTest
         public void AllIdentifiersOneD()
         {
             var res = Identifier.GetAllIdentifiersInRange(
-                new List<ScalarRange>() {new ScalarRange("a", 0, 3)});
+                new List<IdentifierPartRange>() {new IdentifierPartRange("a", 0, 3)});
             for (int i = 0; i < 3; i++)
             {
                 Assert.AreEqual("a$" + i, res[i].Id());
@@ -32,9 +32,9 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void AllIdentifiersTwoD()
         {
-            var list = new List<ScalarRange>
+            var list = new List<IdentifierPartRange>
             {
-                new ScalarRange("a", 0, 3), new ScalarRange("b", 2, 10)
+                new IdentifierPartRange("a", 0, 3), new IdentifierPartRange("b", 2, 10)
             };
             var res = Identifier.GetAllIdentifiersInRange(list);
             int currentIndexInList = 0;
@@ -57,8 +57,8 @@ namespace GraphConfigurationTest
         [TestMethod]
         public void Id()
         {
-            ScalarId a = new ScalarId("a", 1);
-            ScalarId b = new ScalarId("b", 10);
+            IdentifierPart a = new IdentifierPart("a", 1);
+            IdentifierPart b = new IdentifierPart("b", 10);
             Identifier identifier = new Identifier(a, b);
             Assert.AreEqual("a$1#b$10", identifier.Id());
         }

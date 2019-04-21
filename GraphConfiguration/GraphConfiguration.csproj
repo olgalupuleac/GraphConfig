@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="GraphConfig.cs" />
     <Compile Include="GraphElementIdentifier\Identifier.cs" />
-    <Compile Include="VectorRangeExpression.cs" />
+    <Compile Include="IdentifierTemplate.cs" />
     <Compile Include="NodeProperty.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EdgeProperty.cs" />

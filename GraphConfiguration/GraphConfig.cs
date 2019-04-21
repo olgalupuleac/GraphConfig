@@ -4,17 +4,17 @@ namespace GraphConfiguration
 {
     public abstract class GraphElementFamily
     {
-        protected GraphElementFamily(VectorRangeExpression ranges)
+        protected GraphElementFamily(IdentifierTemplate ranges)
         {
             Ranges = ranges;
         }
 
-        public VectorRangeExpression Ranges { get; }
+        public IdentifierTemplate Ranges { get; }
     }
 
     public class EdgeFamily : GraphElementFamily
     {
-        public EdgeFamily(VectorRangeExpression ranges, string sourceExpression, string targetExpression) :
+        public EdgeFamily(IdentifierTemplate ranges, string sourceExpression, string targetExpression) :
             base(ranges)
         {
             SourceExpression = sourceExpression;
@@ -30,7 +30,7 @@ namespace GraphConfiguration
 
     public class NodeFamily : GraphElementFamily
     {
-        public NodeFamily(VectorRangeExpression ranges) : base(ranges)
+        public NodeFamily(IdentifierTemplate ranges) : base(ranges)
         {
             Properties = new List<NodeProperty>();
         }

@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace GraphConfiguration
 {
-    public class ScalarRangeExpression
+    public class IdentifierPartTemplate
     {
         public string Name { get; }
         public string BeginExpression { get; }
         public string EndExpression { get; }
 
-        public ScalarRangeExpression(string name, string beginExpression, string endExpression)
+        public IdentifierPartTemplate(string name, string beginExpression, string endExpression)
         {
             Name = name;
             BeginExpression = beginExpression;
@@ -19,11 +19,11 @@ namespace GraphConfiguration
         }
     }
 
-    public class VectorRangeExpression
+    public class IdentifierTemplate
     {
-        private ReadOnlyCollection<ScalarRangeExpression> Ranges { get; }
+        private ReadOnlyCollection<IdentifierPartTemplate> Ranges { get; }
 
-        public VectorRangeExpression(List<ScalarRangeExpression> ranges)
+        public IdentifierTemplate(List<IdentifierPartTemplate> ranges)
         {
             Ranges = ranges.AsReadOnly();
         }

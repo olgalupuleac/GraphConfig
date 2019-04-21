@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace GraphConfiguration.GraphElementIdentifier
 {
-    public class ScalarRange
+    public class IdentifierPartRange
     {
         public string Name { get; }
         public int Begin { get; }
         public int End { get; }
 
-        public ScalarRange(string name, int begin, int end)
+        public IdentifierPartRange(string name, int begin, int end)
         {
             Name = name;
             Begin = begin;
@@ -19,9 +19,9 @@ namespace GraphConfiguration.GraphElementIdentifier
         }
     }
 
-    public class ScalarId
+    public class IdentifierPart
     {
-        public ScalarId(string name, int value)
+        public IdentifierPart(string name, int value)
         {
             Name = name;
             Value = value;
@@ -43,19 +43,19 @@ namespace GraphConfiguration.GraphElementIdentifier
 
     public class Identifier
     {
-        public Identifier(params ScalarId[] identifiers)
+        public Identifier(params IdentifierPart[] identifiers)
         {
-            var identifiersList = new List<ScalarId>();
+            var identifiersList = new List<IdentifierPart>();
             identifiersList.AddRange(identifiers);
             ScalarIds = identifiersList.AsReadOnly();
         }
 
-        public Identifier(List<ScalarId> identifiers)
+        public Identifier(List<IdentifierPart> identifiers)
         {
             ScalarIds = identifiers.AsReadOnly();
         }
 
-        public ReadOnlyCollection<ScalarId> ScalarIds { get; }
+        public ReadOnlyCollection<IdentifierPart> ScalarIds { get; }
 
         public string Substitute(string expression)
         {
@@ -73,13 +73,13 @@ namespace GraphConfiguration.GraphElementIdentifier
             return String.Join("#", ScalarIds.Select(i => i.Name + "$" + i.Value.ToString()));
         }
 
-        public static List<Identifier> GetAllIdentifiersInRange(List<ScalarRange> ranges)
+        public static List<Identifier> GetAllIdentifiersInRange(List<IdentifierPartRange> ranges)
         {
             var result = new List<Identifier>();
-            var currentPermutation = new List<ScalarId>();
+            var currentPermutation = new List<IdentifierPart>();
             foreach (var identifier in ranges)
             {
-                currentPermutation.Add(new ScalarId(identifier.Name, identifier.Begin));
+                currentPermutation.Add(new IdentifierPart(identifier.Name, identifier.Begin));
             }
 
             //TODO use delegate function instead
@@ -87,7 +87,7 @@ namespace GraphConfiguration.GraphElementIdentifier
             {
                 //TODO simplify this deep copy (or change type of current permutation to List<int>)
                 result.Add(new Identifier(currentPermutation
-                    .Select(x => new ScalarId(x.Name, x.Value)).ToList()
+                    .Select(x => new IdentifierPart(x.Name, x.Value)).ToList()
                 ));
                 for (var indexToIncrease = currentPermutation.Count - 1; indexToIncrease >= -1; indexToIncrease--)
                 {
