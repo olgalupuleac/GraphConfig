@@ -3,26 +3,17 @@ using Microsoft.Msagl.Drawing;
 
 namespace GraphConfiguration
 {
-    public abstract class EdgeProperty
+    public interface IEdgeProperty
     {
-        public string SubstitutedCondition(Identifier identifier)
-        {
-            return identifier.Substitute(Condition);
-        }
-
-        public string Condition { get; set; }
-
-        //TODO enum
-        public bool AllStackFrames { get; set; }
     }
 
-    public class ValidationEdgeProperty : EdgeProperty
+    public class ValidationEdgeProperty : IEdgeProperty
     {
         //TODO on mouse up, etc.
     }
 
 
-    public class LabelEdgeProperty : EdgeProperty
+    public class LabelEdgeProperty : IEdgeProperty
     {
         public LabelEdgeProperty(string label, string labelTextExpression)
         {
@@ -41,7 +32,7 @@ namespace GraphConfiguration
         public FontStyle FontStyle { get; set; }
     }
 
-    public class LineWidthEdgeProperty : EdgeProperty
+    public class LineWidthEdgeProperty : IEdgeProperty
     {
         public double LineWidth { get; }
 
@@ -51,7 +42,7 @@ namespace GraphConfiguration
         }
     }
 
-    public class LineColorEdgeProperty : EdgeProperty
+    public class LineColorEdgeProperty : IEdgeProperty
     {
         public LineColorEdgeProperty(Color color)
         {
@@ -61,7 +52,7 @@ namespace GraphConfiguration
         public Color Color { get; }
     }
 
-    public class StyleEdgeProperty : EdgeProperty
+    public class StyleEdgeProperty : IEdgeProperty
     {
         public StyleEdgeProperty(Style style)
         {

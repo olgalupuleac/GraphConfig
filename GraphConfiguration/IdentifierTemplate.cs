@@ -18,14 +18,4 @@ namespace GraphConfiguration
             EndExpression = endExpression;
         }
     }
-
-    public class IdentifierTemplate
-    {
-        private ReadOnlyCollection<IdentifierPartTemplate> Ranges { get; }
-
-        public IdentifierTemplate(List<IdentifierPartTemplate> ranges)
-        {
-            Ranges = ranges.AsReadOnly();
-        }
-    }
 }

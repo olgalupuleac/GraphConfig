@@ -56,7 +56,7 @@
         <Parent guid="guidRenderGraphCommandPackageCmdSet" id="MyMenuGroup" />
         <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
-          <ButtonText>Invoke RenderGraphCommand</ButtonText>
+          <ButtonText>Render graph</ButtonText>
         </Strings>
       </Button>
     </Buttons>

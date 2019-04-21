@@ -3,20 +3,11 @@ using Microsoft.Msagl.Drawing;
 
 namespace GraphConfiguration
 {
-    public abstract class NodeProperty
+    public interface INodeProperty
     {
-        public string SubstitutedCondition(Identifier identifier)
-        {
-            return identifier.Substitute(Condition);
-        }
-
-        public string Condition { get; set; }
-
-        //TODO enum
-        public bool AllStackFrames { get; set; }
     }
 
-    public class FillColorNodeProperty : NodeProperty
+    public class FillColorNodeProperty : INodeProperty
     {
         public FillColorNodeProperty(Color color)
         {
@@ -26,7 +17,7 @@ namespace GraphConfiguration
         public Color Color { get; }
     }
 
-    public class ShapeNodeProperty : NodeProperty
+    public class ShapeNodeProperty : INodeProperty
     {
         public ShapeNodeProperty(Shape shape)
         {
@@ -36,13 +27,13 @@ namespace GraphConfiguration
         public Shape Shape { get; }
     }
 
-    public class ValidationNodeProperty : NodeProperty
+    public class ValidationNodeProperty : INodeProperty
     {
         //TODO on mouse up, etc.
     }
 
 
-    public class LabelNodeProperty : NodeProperty
+    public class LabelNodeProperty : INodeProperty
     {
         public LabelNodeProperty(string label, string labelTextExpression)
         {
@@ -61,7 +52,7 @@ namespace GraphConfiguration
         public FontStyle FontStyle { get; set; }
     }
 
-    public class LineWidthNodeProperty : NodeProperty
+    public class LineWidthNodeProperty : INodeProperty
     {
         public double LineWidth { get; }
 
@@ -71,7 +62,7 @@ namespace GraphConfiguration
         }
     }
 
-    public class LineColorNodeProperty : NodeProperty
+    public class LineColorNodeProperty : INodeProperty
     {
         public LineColorNodeProperty(Color color)
         {
@@ -81,7 +72,7 @@ namespace GraphConfiguration
         public Color Color { get; }
     }
 
-    public class StyleNodeProperty : NodeProperty
+    public class StyleNodeProperty : INodeProperty
     {
         public StyleNodeProperty(Style style)
         {
