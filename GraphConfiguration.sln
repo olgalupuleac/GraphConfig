@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphConfigurationTest", "G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphConfiguration", "GraphConfiguration\GraphConfiguration.csproj", "{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphPlugin", "GraphPlugin\GraphPlugin.csproj", "{F4A8DC39-5FB3-4BC5-B303-FB2549847511}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE5A86A2-8F62-48E6-8496-43AF0BF65E84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4A8DC39-5FB3-4BC5-B303-FB2549847511}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
