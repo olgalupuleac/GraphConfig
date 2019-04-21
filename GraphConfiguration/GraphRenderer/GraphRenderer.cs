@@ -36,7 +36,15 @@ namespace GraphConfiguration.GraphRenderer
 
                 foreach (var identifier in nodeIdentifiers)
                 {
-                    _graph.AddNode(identifier.Id());
+                    var node = _graph.AddNode(identifier.Id());
+                    foreach (var property in nodeFamily.Properties)
+                    {
+                        if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
+                            identifier))
+                        {
+                            property.Item2.Apply(node, _debugger, identifier);
+                        }
+                    }
                 }
             }
 
@@ -44,9 +52,17 @@ namespace GraphConfiguration.GraphRenderer
             {
                 var edgeIdentifiers =
                     GetIdentifiersForCondition(GetIdentifiers(edgeFamily), edgeFamily.ValidationTemplate);
-                foreach (var id in edgeIdentifiers)
+                foreach (var identifier in edgeIdentifiers)
                 {
-                    AddEdge(edgeFamily, id);
+                    var edge = AddEdge(edgeFamily, identifier);
+                    foreach (var property in edgeFamily.Properties)
+                    {
+                        if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
+                            identifier))
+                        {
+                            property.Item2.Apply(edge, _debugger, identifier);
+                        }
+                    }
                 }
             }
 
@@ -96,10 +112,10 @@ namespace GraphConfiguration.GraphRenderer
             return validIdentifiers;
         }
 
-        private string SubstituteStackFrameParameters(string expression, Identifier identifier)
+        public static string Substitute(string expression, Identifier identifier, Debugger debugger)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var stackFrame = _debugger.CurrentStackFrame;
+            var stackFrame = debugger.CurrentStackFrame;
             var result = expression.Replace("__CURRENT_FUNCTION__", stackFrame.FunctionName);
             for (int i = 1; i <= stackFrame.Arguments.Count; i++)
             {
@@ -113,8 +129,8 @@ namespace GraphConfiguration.GraphRenderer
         private Expression GetExpression(string template, Identifier identifier)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string expression = SubstituteStackFrameParameters(template,
-                identifier);
+            string expression = Substitute(template,
+                identifier, _debugger);
             return _debugger.GetExpression(expression);
         }
 
@@ -140,7 +156,7 @@ namespace GraphConfiguration.GraphRenderer
         }
 
 
-        private void AddEdge(EdgeFamily edgeFamily,
+        private Edge AddEdge(EdgeFamily edgeFamily,
             Identifier identifier)
         {
             //TODO check IsValidValue
@@ -160,6 +176,8 @@ namespace GraphConfiguration.GraphRenderer
             {
                 edge.Attr.ArrowheadAtTarget = ArrowStyle.None;
             }
+
+            return edge;
         }
     }
 }

@@ -40,6 +40,9 @@ namespace GraphPlugin
         /// <param name="commandService">Command service to add command to, not null.</param>
         private RenderGraphCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var applicationObject = (DTE)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            _debugger = applicationObject.Debugger;
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
@@ -77,7 +80,7 @@ namespace GraphPlugin
         }
 
         private GraphConfig _config;
-        private Debugger _debugger;
+        private readonly Debugger _debugger;
         private Dictionary<string, Edge> _edges = new Dictionary<string, Edge>();
 
         /// <summary>
@@ -89,9 +92,7 @@ namespace GraphPlugin
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var applicationObject = (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            _debugger = applicationObject.Debugger;
+            
             CreateConfig();
             GraphRenderer renderer = new GraphRenderer(_config,
                 _debugger);
