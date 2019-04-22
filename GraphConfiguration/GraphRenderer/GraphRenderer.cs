@@ -7,13 +7,14 @@ using GraphConfiguration.GraphElementIdentifier;
 using Microsoft.Msagl.Drawing;
 using Microsoft.VisualStudio.Shell;
 using Debugger = EnvDTE.Debugger;
+using StackFrame = EnvDTE.StackFrame;
 
 namespace GraphConfiguration.GraphRenderer
 {
     public class GraphRenderer
     {
         private readonly GraphConfig _config;
-        private readonly Debugger _debugger;
+        private Debugger _debugger;
         private readonly Graph _graph;
         private readonly Dictionary<string, Edge> _edges;
 
@@ -39,11 +40,26 @@ namespace GraphConfiguration.GraphRenderer
                     var node = _graph.AddNode(identifier.Id());
                     foreach (var property in nodeFamily.Properties)
                     {
-                        if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
-                            identifier))
+                        if (!property.Item1.AllStackFrames)
                         {
-                            property.Item2.Apply(node, _debugger, identifier);
+                            ApplyNodePropertyIfTrue(property, identifier, node);
                         }
+                        else
+                        {
+                            var currentStackframe = _debugger.CurrentStackFrame;
+                            var stackframes = _debugger.CurrentThread.StackFrames;
+                            foreach (StackFrame stackframe in stackframes)
+                            {
+                                _debugger.CurrentStackFrame = stackframe;
+                                if (ApplyNodePropertyIfTrue(property, identifier, node))
+                                {
+                                    break;
+                                }
+                            }
+
+                            _debugger.CurrentStackFrame = currentStackframe;
+                        }
+                        
                     }
                 }
             }
@@ -57,16 +73,60 @@ namespace GraphConfiguration.GraphRenderer
                     var edge = AddEdge(edgeFamily, identifier);
                     foreach (var property in edgeFamily.Properties)
                     {
-                        if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
-                            identifier))
+                        if (!property.Item1.AllStackFrames)
                         {
-                            property.Item2.Apply(edge, _debugger, identifier);
+                            if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
+                                identifier))
+                            {
+                                property.Item2.Apply(edge, _debugger, identifier);
+                            }
                         }
+                        else
+                        {
+                            var currentStackframe = _debugger.CurrentStackFrame;
+                            var stackframes = _debugger.CurrentThread.StackFrames;
+                            foreach (StackFrame stackframe in stackframes)
+                            {
+                                _debugger.CurrentStackFrame = stackframe;
+                                if(ApplyEdgePropertyIfTrue(property, identifier, edge))
+                                    break;
+                            }
+
+                            _debugger.CurrentStackFrame = currentStackframe;
+                        }
+                       
                     }
                 }
             }
 
             return _graph;
+        }
+
+
+        private bool ApplyNodePropertyIfTrue(Tuple<Condition, INodeProperty> property,
+            Identifier identifier, Node node)
+        {
+            if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
+                identifier))
+            {
+                property.Item2.Apply(node, _debugger, identifier);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ApplyEdgePropertyIfTrue(Tuple<Condition, IEdgeProperty> property,
+            Identifier identifier, Edge edge)
+        {
+            if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
+                identifier))
+            {
+                property.Item2.Apply(edge, _debugger, identifier);
+                return true;
+            }
+
+            return false;
         }
 
         private List<Identifier> GetIdentifiers(GraphElementFamily family)

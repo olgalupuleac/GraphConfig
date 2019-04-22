@@ -106,9 +106,16 @@ namespace GraphPlugin
 
         private void CreateConfig()
         {
+            var visitedNode = System.Tuple.Create(
+                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && visited[__v__]"),
+                (INodeProperty)new FillColorNodeProperty(Color.Green));
             var dfsNode = System.Tuple.Create(
+                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__", true),
+                (INodeProperty) new FillColorNodeProperty(Color.Gray));
+            var currentNode = System.Tuple.Create(
                 new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__"),
                 (INodeProperty) new FillColorNodeProperty(Color.Red));
+
 
             NodeFamily nodes = new NodeFamily(
                 new List<IdentifierPartTemplate>()
@@ -116,7 +123,9 @@ namespace GraphPlugin
                     new IdentifierPartTemplate("v", "0", "n")
                 }
             );
+            nodes.Properties.Add(visitedNode);
             nodes.Properties.Add(dfsNode);
+            nodes.Properties.Add(currentNode);
             EdgeFamily edges = new EdgeFamily(
                 new List<IdentifierPartTemplate>
                 {
@@ -125,7 +134,8 @@ namespace GraphPlugin
                 }, new EdgeFamily.EdgeEnd(nodes, new List<string> {"__a__"}),
                 new EdgeFamily.EdgeEnd(nodes, new List<string> {"g[__a__][__x__]"})
             ) {ValidationTemplate = "__x__ < g[__a__].size()", IsDirected = true};
-            var dfsEdges = Tuple.Create(new Condition("p[g[__a__][__x__]] == __a__"),
+            var dfsEdges = Tuple.Create(
+                new Condition("p[g[__a__][__x__]].first == __a__ && p[g[__a__][__x__]].second == __x__"),
                 (IEdgeProperty) new LineColorEdgeProperty(Color.Red));
             edges.Properties.Add(dfsEdges);
             _config = new GraphConfig
