@@ -30,7 +30,7 @@ namespace GraphConfigurationTest
                     new List<IdentifierPartTemplate>
                     {
                         new IdentifierPartTemplate("a", "0", "n"),
-                        new IdentifierPartTemplate("b", "0", "n"),
+                        new IdentifierPartTemplate("x", "0", "n"),
                         new IdentifierPartTemplate("x", "0", "g[__a__].size()")
                     }, new EdgeFamily.EdgeEnd(nodes, new List<string>{"__a__"}),
                     new EdgeFamily.EdgeEnd(nodes, new List<string>{ "__b__"}))

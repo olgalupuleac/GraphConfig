@@ -121,7 +121,7 @@ namespace GraphConfiguration.GraphRenderer
             {
                 result = result.Replace($"__ARG{i}__", stackFrame.Arguments.Item(i).Value);
             }
-
+            Debug.WriteLine(identifier.Substitute(result));
             return identifier.Substitute(result);
         }
 
@@ -138,6 +138,8 @@ namespace GraphConfiguration.GraphRenderer
         bool CheckConditionForIdentifier(string conditionTemplate, Identifier identifier)
         {
             var conditionResult = GetExpression(conditionTemplate, identifier);
+            Debug.WriteLine(conditionTemplate);
+            Debug.WriteLine(conditionResult.Value);
             return conditionResult.IsValidValue && conditionResult.Value.Equals("true");
         }
 

@@ -41,7 +41,7 @@ namespace GraphPlugin
         private RenderGraphCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var applicationObject = (DTE)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            var applicationObject = (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             _debugger = applicationObject.Debugger;
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
@@ -92,7 +92,6 @@ namespace GraphPlugin
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            
             CreateConfig();
             GraphRenderer renderer = new GraphRenderer(_config,
                 _debugger);
@@ -107,22 +106,28 @@ namespace GraphPlugin
 
         private void CreateConfig()
         {
+            var dfsNode = System.Tuple.Create(
+                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__"),
+                (INodeProperty) new FillColorNodeProperty(Color.Red));
+
             NodeFamily nodes = new NodeFamily(
                 new List<IdentifierPartTemplate>()
                 {
                     new IdentifierPartTemplate("v", "0", "n")
                 }
             );
+            nodes.Properties.Add(dfsNode);
             EdgeFamily edges = new EdgeFamily(
                 new List<IdentifierPartTemplate>
                 {
                     new IdentifierPartTemplate("a", "0", "n"),
-                    new IdentifierPartTemplate("b", "0", "n"),
                     new IdentifierPartTemplate("x", "0", "n")
-                }, new EdgeFamily.EdgeEnd(nodes, new List<string>{"__a__"}),
-                new EdgeFamily.EdgeEnd(nodes, new List<string> { "__b__" })
-            ) {ValidationTemplate = "g[__a__][__x__] == __b__", IsDirected = true};
-
+                }, new EdgeFamily.EdgeEnd(nodes, new List<string> {"__a__"}),
+                new EdgeFamily.EdgeEnd(nodes, new List<string> {"g[__a__][__x__]"})
+            ) {ValidationTemplate = "__x__ < g[__a__].size()", IsDirected = true};
+            var dfsEdges = Tuple.Create(new Condition("p[g[__a__][__x__]] == __a__"),
+                (IEdgeProperty) new LineColorEdgeProperty(Color.Red));
+            edges.Properties.Add(dfsEdges);
             _config = new GraphConfig
             {
                 Edges = new HashSet<EdgeFamily> {edges},
