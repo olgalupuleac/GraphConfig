@@ -8,13 +8,13 @@
 
     public class Condition
     {
-        public Condition(string conditionExpression, ConditionMode mode = ConditionMode.CurrentStackFrame)
+        public Condition(string template, ConditionMode mode = ConditionMode.CurrentStackFrame)
         {
-            ConditionExpression = conditionExpression;
+            Template = template;
             Mode = mode;
         }
 
-        public string ConditionExpression { get; }
+        public string Template { get; }
 
         //TODO enum
         public ConditionMode Mode { get; }

@@ -67,7 +67,7 @@ namespace GraphPlugin
         private void Update(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
         {
             Debug.WriteLine("Context changed");
-            if (!_shouldBeRedrawn)
+           // if (!_shouldBeRedrawn)
             {
                 Debug.WriteLine("Not need to redraw");
                 return;
@@ -128,9 +128,7 @@ namespace GraphPlugin
             DrawGraph();
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                ts.Hours, ts.Minutes, ts.Seconds,
-                ts.Milliseconds / 10);
+            string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
             Debug.WriteLine(elapsedTime);
         }
 
@@ -153,16 +151,18 @@ namespace GraphPlugin
 
         private void CreateConfig()
         {
-            var visitedNode = System.Tuple.Create(
-                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && visited[__v__]"),
-                (INodeProperty) new FillColorNodeProperty(Color.Green));
-            var dfsNode = System.Tuple.Create(
-                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__", true),
-                (INodeProperty) new FillColorNodeProperty(Color.Gray));
-            var currentNode = System.Tuple.Create(
-                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__"),
-                (INodeProperty) new FillColorNodeProperty(Color.Red));
+            var visitedNode =
+                new ConditionalProperty<INodeProperty>(
+                    new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && visited[__v__]"),
+                    new FillColorNodeProperty(Color.Green));
+            ;
+            var dfsNode = new ConditionalProperty<INodeProperty>(
+                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__",
+                    ConditionMode.AllStackFrames), new FillColorNodeProperty(Color.Gray));
 
+            var currentNode = new ConditionalProperty<INodeProperty>(
+                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__"),
+                new FillColorNodeProperty(Color.Red));
 
             NodeFamily nodes = new NodeFamily(
                 new List<IdentifierPartTemplate>()
@@ -170,21 +170,24 @@ namespace GraphPlugin
                     new IdentifierPartTemplate("v", "0", "n")
                 }
             );
-            nodes.Properties.Add(visitedNode);
-            nodes.Properties.Add(dfsNode);
-            nodes.Properties.Add(currentNode);
+            nodes.ConditionalProperties.Add(visitedNode);
+            nodes.ConditionalProperties.Add(dfsNode);
+            nodes.ConditionalProperties.Add(currentNode);
+
             EdgeFamily edges = new EdgeFamily(
                 new List<IdentifierPartTemplate>
                 {
                     new IdentifierPartTemplate("a", "0", "n"),
                     new IdentifierPartTemplate("x", "0", "n")
                 }, new EdgeFamily.EdgeEnd(nodes, new List<string> {"__a__"}),
-                new EdgeFamily.EdgeEnd(nodes, new List<string> {"g[__a__][__x__]"})
-            ) {ValidationTemplate = "__x__ < g[__a__].size()", IsDirected = true};
-            var dfsEdges = Tuple.Create(
+                new EdgeFamily.EdgeEnd(nodes, new List<string> {"g[__a__][__x__]"}), true
+            ) {ValidationTemplate = "__x__ < g[__a__].size()"};
+
+            var dfsEdges = new ConditionalProperty<IEdgeProperty>(
                 new Condition("p[g[__a__][__x__]].first == __a__ && p[g[__a__][__x__]].second == __x__"),
-                (IEdgeProperty) new LineColorEdgeProperty(Color.Red));
-            edges.Properties.Add(dfsEdges);
+                new LineColorEdgeProperty(Color.Red));
+
+            edges.ConditionalProperties.Add(dfsEdges);
             _config = new GraphConfig
             {
                 Edges = new HashSet<EdgeFamily> {edges},
