@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 using EnvDTE;
 using GraphConfiguration.Config;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.GraphViewerGdi;
 using Microsoft.VisualStudio.Shell;
+using Color = Microsoft.Msagl.Drawing.Color;
+using Debugger = EnvDTE.Debugger;
 using GraphRenderer = GraphConfiguration.GraphRenderer.GraphRenderer;
+using Process = EnvDTE.Process;
+using StackFrame = EnvDTE.StackFrame;
 using Task = System.Threading.Tasks.Task;
 
 namespace GraphPlugin
@@ -42,13 +48,34 @@ namespace GraphPlugin
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var applicationObject = (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            _debugEvents = applicationObject.Events.DebuggerEvents;
+            _debugEvents.OnContextChanged +=
+                Update;
             _debugger = applicationObject.Debugger;
+
+            CreateConfig();
+            _renderer = new GraphRenderer(_config,
+                _debugger);
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
             var menuItem = new MenuCommand(this.Execute, menuCommandID);
             commandService.AddCommand(menuItem);
+        }
+
+        private void Update(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
+        {
+            Debug.WriteLine("Context changed");
+            if (!_shouldBeRedrawn)
+            {
+                Debug.WriteLine("Not need to redraw");
+                return;
+            }
+
+            _shouldBeRedrawn = false;
+            DrawGraph();
+            _shouldBeRedrawn = true;
         }
 
         /// <summary>
@@ -82,6 +109,10 @@ namespace GraphPlugin
         private GraphConfig _config;
         private readonly Debugger _debugger;
         private Dictionary<string, Edge> _edges = new Dictionary<string, Edge>();
+        private Form _form;
+        private GraphRenderer _renderer;
+        private DebuggerEvents _debugEvents;
+        private bool _shouldBeRedrawn = true;
 
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -92,23 +123,39 @@ namespace GraphPlugin
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            CreateConfig();
-            GraphRenderer renderer = new GraphRenderer(_config,
-                _debugger);
-            Graph graph = renderer.RenderGraph();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            DrawGraph();
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+            Debug.WriteLine(elapsedTime);
+        }
+
+        private void DrawGraph()
+        {
+            Graph graph = _renderer.RenderGraph();
             GViewer viewer = new GViewer {Graph = graph, Dock = DockStyle.Fill};
-            Form form = new Form();
-            form.SuspendLayout();
-            form.Controls.Add(viewer);
-            form.ResumeLayout();
-            form.Show();
+            if (_form == null)
+            {
+                _form = new Form();
+                _form.Size = new Size(800, 800);
+            }
+
+            _form.SuspendLayout();
+            _form.Controls.Clear();
+            _form.Controls.Add(viewer);
+            _form.ResumeLayout();
+            _form.Show();
         }
 
         private void CreateConfig()
         {
             var visitedNode = System.Tuple.Create(
                 new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && visited[__v__]"),
-                (INodeProperty)new FillColorNodeProperty(Color.Green));
+                (INodeProperty) new FillColorNodeProperty(Color.Green));
             var dfsNode = System.Tuple.Create(
                 new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__", true),
                 (INodeProperty) new FillColorNodeProperty(Color.Gray));

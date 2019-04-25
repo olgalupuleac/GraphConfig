@@ -1,16 +1,34 @@
 ﻿namespace GraphConfiguration.Config
 {
+    public enum ConditionMode
+    {
+        CurrentStackFrame,
+        AllStackFrames
+    }
+
     public class Condition
     {
-        public Condition(string conditionExpression, bool allStackFrames = false)
+        public Condition(string conditionExpression, ConditionMode mode = ConditionMode.CurrentStackFrame)
         {
             ConditionExpression = conditionExpression;
-            AllStackFrames = allStackFrames;
+            Mode = mode;
         }
 
         public string ConditionExpression { get; }
 
         //TODO enum
-        public bool AllStackFrames { get; }
+        public ConditionMode Mode { get; }
+    }
+
+    public class ConditionalProperty<T>
+    {
+        public ConditionalProperty(Condition condition, T property)
+        {
+            Condition = condition;
+            Property = property;
+        }
+
+        public Condition Condition { get; }
+        public T Property { get; }
     }
 }

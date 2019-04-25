@@ -15,8 +15,12 @@ namespace GraphConfiguration.GraphRenderer
     {
         private readonly GraphConfig _config;
         private Debugger _debugger;
-        private readonly Graph _graph;
+        private Graph _graph;
         private readonly Dictionary<string, Edge> _edges;
+        private TimeSpan _getExpressionTimeSpan = new TimeSpan();
+        private TimeSpan _setCurrentStackFrameTimeSpan = new TimeSpan();
+        private int _getExpressionCallsNumber = 0;
+        private int _setCurrentStackFrameNumber = 0;
 
         public GraphRenderer(GraphConfig config, Debugger debugger)
         {
@@ -29,7 +33,7 @@ namespace GraphConfiguration.GraphRenderer
         public Graph RenderGraph()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
+            _graph = new Graph();
             foreach (var nodeFamily in _config.Nodes)
             {
                 var nodeIdentifiers =
@@ -40,7 +44,7 @@ namespace GraphConfiguration.GraphRenderer
                     var node = _graph.AddNode(identifier.Id());
                     foreach (var property in nodeFamily.Properties)
                     {
-                        if (!property.Item1.AllStackFrames)
+                        if (!property.Item1.Mode)
                         {
                             ApplyNodePropertyIfTrue(property, identifier, node);
                         }
@@ -50,16 +54,16 @@ namespace GraphConfiguration.GraphRenderer
                             var stackframes = _debugger.CurrentThread.StackFrames;
                             foreach (StackFrame stackframe in stackframes)
                             {
-                                _debugger.CurrentStackFrame = stackframe;
+                                SetStackFrame(stackframe);
+
                                 if (ApplyNodePropertyIfTrue(property, identifier, node))
                                 {
                                     break;
                                 }
                             }
 
-                            _debugger.CurrentStackFrame = currentStackframe;
+                            SetStackFrame(currentStackframe);
                         }
-                        
                     }
                 }
             }
@@ -73,7 +77,7 @@ namespace GraphConfiguration.GraphRenderer
                     var edge = AddEdge(edgeFamily, identifier);
                     foreach (var property in edgeFamily.Properties)
                     {
-                        if (!property.Item1.AllStackFrames)
+                        if (!property.Item1.Mode)
                         {
                             if (CheckConditionForIdentifier(property.Item1.ConditionExpression,
                                 identifier))
@@ -87,18 +91,26 @@ namespace GraphConfiguration.GraphRenderer
                             var stackframes = _debugger.CurrentThread.StackFrames;
                             foreach (StackFrame stackframe in stackframes)
                             {
-                                _debugger.CurrentStackFrame = stackframe;
-                                if(ApplyEdgePropertyIfTrue(property, identifier, edge))
+                                SetStackFrame(stackframe);
+
+                                if (ApplyEdgePropertyIfTrue(property, identifier, edge))
                                     break;
                             }
 
-                            _debugger.CurrentStackFrame = currentStackframe;
+                            SetStackFrame(currentStackframe);
                         }
-                       
                     }
                 }
             }
+            string getExpressionTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                _getExpressionTimeSpan.Hours, _getExpressionTimeSpan.Minutes, _getExpressionTimeSpan.Seconds,
+                _getExpressionTimeSpan.Milliseconds / 10);
+            Debug.WriteLine($"got {_getExpressionCallsNumber} expressions in {getExpressionTime}");
 
+            string setStackFrameTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                _setCurrentStackFrameTimeSpan.Hours, _setCurrentStackFrameTimeSpan.Minutes, _setCurrentStackFrameTimeSpan.Seconds,
+                _setCurrentStackFrameTimeSpan.Milliseconds / 10);
+            Debug.WriteLine($"set {_setCurrentStackFrameNumber} stackframes in {setStackFrameTime}");
             return _graph;
         }
 
@@ -135,10 +147,8 @@ namespace GraphConfiguration.GraphRenderer
             var ranges = new List<IdentifierPartRange>();
             foreach (var partTemplate in family.Ranges)
             {
-                var beginString = _debugger.GetExpression(partTemplate.BeginTemplate).Value;
-                var endString = _debugger.GetExpression(partTemplate.EndTemplate).Value;
-                Debug.WriteLine(beginString);
-                Debug.WriteLine(endString);
+                var beginString = GetExpression(partTemplate.BeginTemplate, null).Value;
+                var endString = GetExpression(partTemplate.EndTemplate, null).Value;
                 if (Int32.TryParse(beginString, out var begin) &&
                     Int32.TryParse(endString, out var end))
                 {
@@ -181,32 +191,41 @@ namespace GraphConfiguration.GraphRenderer
             {
                 result = result.Replace($"__ARG{i}__", stackFrame.Arguments.Item(i).Value);
             }
-            Debug.WriteLine(identifier.Substitute(result));
+
             return identifier.Substitute(result);
         }
 
 
         private Expression GetExpression(string template, Identifier identifier)
         {
+            string expression = identifier == null
+                ? template
+                : Substitute(template,
+                    identifier, _debugger);
             ThreadHelper.ThrowIfNotOnUIThread();
-            string expression = Substitute(template,
-                identifier, _debugger);
-            return _debugger.GetExpression(expression);
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var result = _debugger.GetExpression(expression);
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+            Debug.WriteLine($"get expression {_getExpressionCallsNumber++} in {elapsedTime}");
+            _getExpressionTimeSpan += ts;
+            return result;
         }
 
 
         bool CheckConditionForIdentifier(string conditionTemplate, Identifier identifier)
         {
             var conditionResult = GetExpression(conditionTemplate, identifier);
-            Debug.WriteLine(conditionTemplate);
-            Debug.WriteLine(conditionResult.Value);
             return conditionResult.IsValidValue && conditionResult.Value.Equals("true");
         }
 
 
         private Identifier NodeIdentifier(EdgeFamily.EdgeEnd edgeEnd, Identifier identifier)
         {
-            var templates = edgeEnd.GeTemplates();
+            var templates = edgeEnd.GetTemplates();
             var res = new List<IdentifierPart>();
             foreach (var template in templates)
             {
@@ -214,7 +233,29 @@ namespace GraphConfiguration.GraphRenderer
                 var value = Int32.Parse(GetExpression(template.Item2, identifier).Value);
                 res.Add(new IdentifierPart(template.Item1, value));
             }
+
             return new Identifier(res);
+        }
+
+        private void SetStackFrame(StackFrame stackFrame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+                _debugger.CurrentStackFrame = stackFrame;
+                stopWatch.Stop();
+                TimeSpan ts = stopWatch.Elapsed;
+                string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                    ts.Hours, ts.Minutes, ts.Seconds,
+                    ts.Milliseconds / 10);
+                Debug.WriteLine($"set stackframe {_setCurrentStackFrameNumber++} {stackFrame.FunctionName} in {elapsedTime}");
+                _setCurrentStackFrameTimeSpan += ts;
+            }
+            catch (Exception)
+            {
+            }
         }
 
 
@@ -222,7 +263,7 @@ namespace GraphConfiguration.GraphRenderer
             Identifier identifier)
         {
             //TODO check IsValidValue
-            var source  = NodeIdentifier(edgeFamily.Source, identifier).Id();
+            var source = NodeIdentifier(edgeFamily.Source, identifier).Id();
             var target = NodeIdentifier(edgeFamily.Target, identifier).Id();
             var sourceNode = _graph.FindNode(source);
             var targetNode = _graph.FindNode(target);
