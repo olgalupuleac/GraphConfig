@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using EnvDTE;
 using GraphConfiguration.Config;
 using Microsoft.Msagl.Drawing;
@@ -56,6 +57,11 @@ namespace GraphPlugin
             CreateConfig();
             _renderer = new GraphRenderer(_config,
                 _debugger);
+
+            _dispatcherTimer = new DispatcherTimer();
+            _dispatcherTimer.Tick += dispatcherTimer_Tick;
+            _dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 50);
+            _dispatcherTimer.Start();
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
@@ -64,17 +70,20 @@ namespace GraphPlugin
             commandService.AddCommand(menuItem);
         }
 
-        private void Update(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            Debug.WriteLine("Context changed");
-           // if (!_shouldBeRedrawn)
+            if (!_shouldBeRedrawn)
             {
-                Debug.WriteLine("Not need to redraw");
                 return;
             }
 
-            _shouldBeRedrawn = false;
             DrawGraph();
+            _shouldBeRedrawn = false;
+        }
+
+        private void Update(Process newprocess, Program newprogram, Thread newthread, StackFrame newstackframe)
+        {
+            Debug.WriteLine("Context changed");
             _shouldBeRedrawn = true;
         }
 
@@ -113,6 +122,7 @@ namespace GraphPlugin
         private GraphRenderer _renderer;
         private DebuggerEvents _debugEvents;
         private bool _shouldBeRedrawn = true;
+        private DispatcherTimer _dispatcherTimer;
 
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -123,18 +133,18 @@ namespace GraphPlugin
         /// <param name="e">Event args.</param>
         private void Execute(object sender, EventArgs e)
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
             DrawGraph();
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
-            Debug.WriteLine(elapsedTime);
         }
 
         private void DrawGraph()
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             Graph graph = _renderer.RenderGraph();
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = $"{ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Milliseconds / 10:00}";
+            Debug.WriteLine(elapsedTime);
             GViewer viewer = new GViewer {Graph = graph, Dock = DockStyle.Fill};
             if (_form == null)
             {
@@ -157,7 +167,7 @@ namespace GraphPlugin
                     new FillColorNodeProperty(Color.Green));
             ;
             var dfsNode = new ConditionalProperty<INodeProperty>(
-                new Condition("!strcmp(\"__CURRENT_FUNCTION__\", \"dfs\") && __ARG1__ == __v__",
+                new Condition("__ARG1__ == __v__", @"^dfs$",
                     ConditionMode.AllStackFrames), new FillColorNodeProperty(Color.Gray));
 
             var currentNode = new ConditionalProperty<INodeProperty>(

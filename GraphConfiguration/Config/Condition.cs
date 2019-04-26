@@ -8,16 +8,19 @@
 
     public class Condition
     {
-        public Condition(string template, ConditionMode mode = ConditionMode.CurrentStackFrame)
+        public Condition(string template, string functionNameRegex = @".*",
+            ConditionMode mode = ConditionMode.CurrentStackFrame)
         {
             Template = template;
+            FunctionNameRegex = functionNameRegex;
             Mode = mode;
         }
 
         public string Template { get; }
 
-        //TODO enum
         public ConditionMode Mode { get; }
+
+        public string FunctionNameRegex { get; }
     }
 
     public class ConditionalProperty<T>

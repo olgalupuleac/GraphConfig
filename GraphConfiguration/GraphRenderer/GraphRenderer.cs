@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using EnvDTE;
 using GraphConfiguration.Config;
 using GraphConfiguration.GraphElementIdentifier;
@@ -40,6 +41,10 @@ namespace GraphConfiguration.GraphRenderer
             _graph = new Graph();
             _edges.Clear();
             _nodes.Clear();
+            _getExpressionCallsNumber = 0;
+            _getExpressionTimeSpan = new TimeSpan();
+            _setCurrentStackFrameNumber = 0;
+            _setCurrentStackFrameTimeSpan = new TimeSpan();
             foreach (var nodeFamily in _config.Nodes)
             {
                 void NodeAddition(GraphElementFamily<INodeProperty> family, Identifier identifier) =>
@@ -160,6 +165,11 @@ namespace GraphConfiguration.GraphRenderer
             Debug.WriteLine("\n\nStack frames section");
             foreach (StackFrame stackFrame in stackFrames)
             {
+                if (!Regex.IsMatch(stackFrame.FunctionName, conditionalProperty.Condition.FunctionNameRegex))
+                {
+                    continue;
+                }
+
                 SetStackFrame(stackFrame);
                 ApplyConditionalProperty(identifiers,
                     conditionalProperty, applyProperty);
@@ -193,7 +203,9 @@ namespace GraphConfiguration.GraphRenderer
 
         private List<Identifier> GetIdentifiersForCondition(List<Identifier> identifiers, string conditionTemplate)
         {
-            return conditionTemplate == null ? identifiers : identifiers.Where(id => CheckConditionForIdentifier(conditionTemplate, id)).ToList();
+            return conditionTemplate == null
+                ? identifiers
+                : identifiers.Where(id => CheckConditionForIdentifier(conditionTemplate, id)).ToList();
         }
 
         public static string Substitute(string expression, Identifier identifier, Debugger debugger)
@@ -216,7 +228,7 @@ namespace GraphConfiguration.GraphRenderer
                 ? template
                 : Substitute(template,
                     identifier, _debugger);
-            Debug.WriteLine($"{expression}");
+            //Debug.WriteLine($"{expression}");
             ThreadHelper.ThrowIfNotOnUIThread();
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
